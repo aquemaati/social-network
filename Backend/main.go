@@ -6,7 +6,12 @@ import (
 	"time"
 
 	routes "social-network/Routes"
+	utils "social-network/Utils"
 )
+
+func init() {
+	utils.CreateDb()
+}
 
 func main() {
 	fmt.Println("\033[96mServer started at: http://localhost:8080\033[0m")
