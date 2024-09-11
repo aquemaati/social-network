@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 type RegisterContextKey string
@@ -36,6 +37,8 @@ type ResponseWriter struct {
 }
 
 func (w *ResponseWriter) Error(err string) {
+	time.Sleep(2 * time.Second)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
 	json.NewEncoder(w).Encode(err)
