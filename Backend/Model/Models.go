@@ -1,5 +1,10 @@
 package model
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
 type RegisterContextKey string
 
 const (
@@ -24,4 +29,14 @@ type Register struct {
 	Username       string `json:"Username"`
 	AboutMe        string `json:"AboutMe"`
 	Gender         string `json:"Gender"`
+}
+
+type ResponseWriter struct {
+	http.ResponseWriter
+}
+
+func (w *ResponseWriter) Error(err string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	json.NewEncoder(w).Encode(err)
 }

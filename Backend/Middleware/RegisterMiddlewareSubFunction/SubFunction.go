@@ -1,7 +1,6 @@
 package registermiddlewaresubfunction
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -12,17 +11,17 @@ import (
 )
 
 func RegisterVerification(register model.Register, w http.ResponseWriter) error {
+	nw := model.ResponseWriter{
+		ResponseWriter: w,
+	}
+
 	if register.Auth.Password != register.Auth.ConfirmPassword {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode("Password and password confirmation do not match")
+		nw.Error("Password and password confirmation do not match")
 		return errors.New("password and password confirmation do not match")
 	}
 
 	if register.Auth.Email == "" || register.Auth.Password == "" || register.FirstName == "" || register.LastName == "" || register.BirthDate == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode("There is an empty field")
+		nw.Error("There is an empty field")
 		return errors.New("there is an empty field")
 	}
 
@@ -30,13 +29,15 @@ func RegisterVerification(register model.Register, w http.ResponseWriter) error 
 }
 
 func CreateUuidAndCrypt(register *model.Register, w http.ResponseWriter) error {
+	nw := model.ResponseWriter{
+		ResponseWriter: w,
+	}
+
 	cryptedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Auth.Password), 12)
 	if err != nil {
 		fmt.Println(err)
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode("Internal Error: There is a probleme with bcrypt")
+		nw.Error("Internal Error: There is a probleme with bcrypt")
 		return errors.New("there is a probleme with bcrypt")
 	}
 	register.Auth.Password = string(cryptedPassword)
@@ -44,10 +45,7 @@ func CreateUuidAndCrypt(register *model.Register, w http.ResponseWriter) error {
 	uuid, err := uuid.NewV7()
 	if err != nil {
 		fmt.Println(err)
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode("Internal Error: There is a probleme with the generation of the uuid")
+		nw.Error("Internal Error: There is a probleme with the generation of the uuid")
 		return errors.New("there is a probleme with the generation of the uuid")
 	}
 	register.Auth.Id = uuid.String()
