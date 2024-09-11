@@ -1,18 +1,23 @@
 package model
 
-type Auth struct {
-	Id       string `json:"Id"`
-	Email    string `json:"Email"`
-	Password string `json:"Password"`
-}
+type RegisterContextKey string
 
-type Register struct {
+const (
+	RegisterCtx RegisterContextKey = "register"
+)
+
+type Auth struct {
+	Id              string `json:"Id"`
 	Email           string `json:"Email"`
 	Password        string `json:"Password"`
 	ConfirmPassword string `json:"ConfirmPassword"`
-	FirstName       string `json:"FirstName"`
-	LastName        string `json:"LastName"`
-	BirthDate       string `json:"BirthDate"`
+}
+
+type Register struct {
+	Auth      Auth   `json:"Auth"`
+	FirstName string `json:"FirstName"`
+	LastName  string `json:"LastName"`
+	BirthDate string `json:"BirthDate"`
 
 	// OPTIONNAL
 	ProfilePicture any    `json:"ProfilePicture"`
