@@ -43,19 +43,28 @@ func CreateDb() {
 
 }
 
-func InsertIntoDb(tabelName string, Args ...string) error {
+func InsertIntoDb(tabelName string, Args ...any) error {
 	db, err := OpenDb()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	stmt, err := db.Prepare(fmt.Sprintf("INSERT INTO %s (%s)", tabelName, Args))
+	var stringMAP string
+	for i, j := range Args {
+		if i < len(Args)-1 {
+			stringMAP += fmt.Sprintf("\"%s\", ", j)
+		} else {
+			stringMAP += fmt.Sprintf("\"%s\"", j)
+		}
+	}
+
+	stmt, err := db.Prepare(fmt.Sprintf("INSERT INTO %s VALUES(%s)", tabelName, stringMAP))
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(stmt)
+	_, err = stmt.Exec()
 	if err != nil {
 		return err
 	}
@@ -70,17 +79,19 @@ func SelectFromDb(tabelName string, Args map[string]any) ([][]interface{}, error
 	}
 
 	var result [][]interface{}
-
 	for rows.Next() {
 		row := make([]interface{}, len(column))
 		for i := 0; i < len(column); i++ {
 			row[i] = new(string)
 		}
+
 		if err := rows.Scan(row...); err != nil {
 			return nil, err
 		}
+
 		result = append(result, row)
 	}
+
 	return result, nil
 }
 
@@ -90,22 +101,26 @@ func prepareStmt(tabelName string, Args map[string]any) ([]string, *sql.Rows, er
 		return nil, nil, err
 	}
 	defer db.Close()
-	var stringMAP string
 
+	var stringMAP string
 	for i, j := range Args {
 		stringMAP += fmt.Sprintf("%s=%s ", i, j)
 	}
+
 	stmt, err := db.Prepare(fmt.Sprintf("SELECT * from %s where %s ", tabelName, stringMAP))
 	if err != nil {
 		return nil, nil, err
 	}
+
 	rows, err := stmt.Query(stmt)
 	if err != nil {
 		return nil, nil, err
 	}
+
 	column, err := rows.Columns()
 	if err != nil {
 		return nil, nil, err
 	}
+
 	return column, rows, nil
 }
