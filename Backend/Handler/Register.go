@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	model "social-network/Model"
 )
 
@@ -16,7 +17,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode("Internal Error: go see the terminal of the server")
+		json.NewEncoder(w).Encode("Internal Error: There is an Unmarshal error")
 		return
 	}
 
